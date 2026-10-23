@@ -1,0 +1,40 @@
+{
+    "model_name": "disease-xgboost-v1",
+    "dataset": "UCI Heart Disease (Cleveland)",
+    "task": "binary_classification",
+    "metrics": {
+        "accuracy": 0.9347826086956522,
+        "precision": 0.9615384615384616,
+        "recall": 0.9259259259259259,
+        "f1": 0.9433962264150944,
+        "roc_auc": 0.9961013645224173
+    },
+    "confusion_matrix": [
+        [
+            18,
+            1
+        ],
+        [
+            2,
+            25
+        ]
+    ],
+    "feature_importance": {
+        "age": 0.11494605243206024,
+        "sex": 0.06706439703702927,
+        "cp": 0.09220914542675018,
+        "trestbps": 0.03318982198834419,
+        "chol": 0.07554320245981216,
+        "fbs": 0.028711404651403427,
+        "restecg": 0.03812501206994057,
+        "thalach": 0.08360809087753296,
+        "exang": 0.11133567243814468,
+        "oldpeak": 0.1035449281334877,
+        "slope": 0.010667763650417328,
+        "ca": 0.12657538056373596,
+        "thal": 0.11447910964488983
+    },
+    "evaluation_date": "2026-08-31T22:09:45.503505",
+    "test_size": 46,
+    "limitations": "Small dataset (303 samples), single-center data"
+}

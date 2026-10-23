@@ -1,0 +1,8 @@
+{
+  "test_cases": 4,
+  "extracted": 4,
+  "correct": 3,
+  "precision": 0.75,
+  "recall": 0.75,
+  "f1_score": 0.75
+}

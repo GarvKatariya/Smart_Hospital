@@ -1,0 +1,12 @@
+{
+  "model_name": "symptom-gru-v1",
+  "training_date": "2026-08-31T22:23:23.593539",
+  "epochs_trained": 100,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "best_val_loss": 0.07423046976327896,
+  "best_val_accuracy": 0.9833333492279053,
+  "num_symptoms": 129,
+  "num_diseases": 40,
+  "dataset": "../../data/raw/symptom_checker/symptom_disease.csv"
+}

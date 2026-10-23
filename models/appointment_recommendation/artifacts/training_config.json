@@ -1,0 +1,10 @@
+{
+  "model_name": "appointment-xgboost-v1",
+  "training_date": "2026-08-31T22:23:53.536447",
+  "n_estimators": 200,
+  "max_depth": 5,
+  "learning_rate": 0.1,
+  "train_samples": 3500,
+  "val_samples": 750,
+  "test_samples": 750
+}

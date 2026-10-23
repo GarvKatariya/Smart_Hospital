@@ -1,0 +1,152 @@
+[
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Emergency Department Procedures",
+    "source": "emergency.md",
+    "title": "Emergency",
+    "chunk_id": 0
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System. > This does not represent a real hospital. # Emergency Department Procedures\n\n- **When to visit ER**: Severe bleeding, chest pain, breathing difficulty, loss of consciousness, severe trauma, sudden weakness or numbness.\n- **Triage Process**: Upon arrival, patients are assessed (triaged) based on severity. Critical cases (Emergency/High) are treated immediately regardless of arrival time.\n- **What to bring**: Identification, insurance details, current medications list.\n- **Contact**: In case of life-threatening emergencies requiring an ambulance, call our emergency hotline: 555-0911.",
+    "source": "emergency.md",
+    "title": "Emergency",
+    "chunk_id": 1
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Hospital Policies",
+    "source": "policies.md",
+    "title": "Policies",
+    "chunk_id": 0
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System. > This does not represent a real hospital. # Hospital Policies\n\n- **Privacy**: Patient information is strictly confidential and protected according to standard healthcare data privacy regulations.\n- **Infection Control**: Hand hygiene is mandatory. Masks may be required in specific wards.\n- **Complaints**: We value your feedback. Complaints can be submitted to the Patient Experience Office on the ground floor.\n- **No Smoking**: The entire hospital campus is a strict no-smoking zone.",
+    "source": "policies.md",
+    "title": "Policies",
+    "chunk_id": 1
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Contact and Location\n\n- **Address**: 123 Health Avenue, Medical District, Smart City, SC 12345\n- **Phone**:\n  - General Inquiries: 555-0100\n  - Emergency: 555-0911\n  - Appointments: 555-0101\n  - Billing: 555-0199\n- **Email**: info@smarthospital.demo.com\n- **Public Transport**: The hospital is accessible via Metro Line A (Health Avenue Station) and Bus Routes 12, 15, and 42.",
+    "source": "contact.md",
+    "title": "Contact",
+    "chunk_id": 0
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Hospital Departments\n\n## Cardiology\n- **Location**: Floor 1, Wing A\n- **Head of Department**: Dr. Arun Sharma\n- **Services**: ECG, Echocardiography, Cardiac Catheterization, Angioplasty\n- **Contact**: 555-0179\n- **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM",
+    "source": "departments.md",
+    "title": "Departments",
+    "chunk_id": 0
+  },
+  {
+    "content": "Smart Hospital Management System. > This does not represent a real hospital. # Hospital Departments ## Cardiology - **Location**: Floor 1, Wing A - **Head of Department**: Dr. Arun Sharma - **Services**: ECG, Echocardiography, Cardiac Catheterization, Angioplasty - **Contact**: 555-0179 - **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM\n\n## Neurology\n- **Location**: Floor 3, Wing B\n- **Head of Department**: Dr. Rajesh Kumar\n- **Services**: EEG, EMG, Neurology Consultation, Stroke Care\n- **Contact**: 555-0162\n- **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM",
+    "source": "departments.md",
+    "title": "Departments",
+    "chunk_id": 1
+  },
+  {
+    "content": "Angioplasty - **Contact**: 555-0179 - **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM ## Neurology - **Location**: Floor 3, Wing B - **Head of Department**: Dr. Rajesh Kumar - **Services**: EEG, EMG, Neurology Consultation, Stroke Care - **Contact**: 555-0162 - **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM\n\n## Orthopedics\n- **Location**: Floor 2, Wing A\n- **Head of Department**: Dr. Suresh Iyer\n- **Services**: Bone care, Joint Replacement, Fracture management\n- **Contact**: 555-0133\n- **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM",
+    "source": "departments.md",
+    "title": "Departments",
+    "chunk_id": 2
+  },
+  {
+    "content": "Care - **Contact**: 555-0162 - **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM ## Orthopedics - **Location**: Floor 2, Wing A - **Head of Department**: Dr. Suresh Iyer - **Services**: Bone care, Joint Replacement, Fracture management - **Contact**: 555-0133 - **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM\n\n## Pediatrics\n- **Location**: Floor 2, Wing B\n- **Head of Department**: Dr. Amit Verma\n- **Services**: Child care, Vaccinations, Pediatric Emergency\n- **Contact**: 555-0144\n- **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM",
+    "source": "departments.md",
+    "title": "Departments",
+    "chunk_id": 3
+  },
+  {
+    "content": "Fracture management - **Contact**: 555-0133 - **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM ## Pediatrics - **Location**: Floor 2, Wing B - **Head of Department**: Dr. Amit Verma - **Services**: Child care, Vaccinations, Pediatric Emergency - **Contact**: 555-0144 - **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM\n\n## General Medicine\n- **Location**: Floor 1, Wing B\n- **Head of Department**: Dr. Vikram Joshi\n- **Services**: Primary care, General health consultations\n- **Contact**: 555-0155\n- **Hours**: OPD: 9 AM - 5 PM",
+    "source": "departments.md",
+    "title": "Departments",
+    "chunk_id": 4
+  },
+  {
+    "content": "Vaccinations, Pediatric Emergency - **Contact**: 555-0144 - **Hours**: 24/7 Emergency, OPD: 9 AM - 5 PM ## General Medicine - **Location**: Floor 1, Wing B - **Head of Department**: Dr. Vikram Joshi - **Services**: Primary care, General health consultations - **Contact**: 555-0155 - **Hours**: OPD: 9 AM - 5 PM\n\n## Dermatology\n- **Location**: Floor 4, Wing A\n- **Head of Department**: Dr. Manoj Tiwari\n- **Services**: Skin care, Cosmetic procedures\n- **Contact**: 555-0166\n- **Hours**: OPD: 9 AM - 5 PM",
+    "source": "departments.md",
+    "title": "Departments",
+    "chunk_id": 5
+  },
+  {
+    "content": "- **Services**: Primary care, General health consultations - **Contact**: 555-0155 - **Hours**: OPD: 9 AM - 5 PM ## Dermatology - **Location**: Floor 4, Wing A - **Head of Department**: Dr. Manoj Tiwari - **Services**: Skin care, Cosmetic procedures - **Contact**: 555-0166 - **Hours**: OPD: 9 AM - 5 PM\n\n## ENT\n- **Location**: Floor 4, Wing B\n- **Head of Department**: Dr. Sanjay Gupta\n- **Services**: Ear, Nose, Throat care, Audiometry\n- **Contact**: 555-0177\n- **Hours**: OPD: 9 AM - 5 PM",
+    "source": "departments.md",
+    "title": "Departments",
+    "chunk_id": 6
+  },
+  {
+    "content": "- **Services**: Skin care, Cosmetic procedures - **Contact**: 555-0166 - **Hours**: OPD: 9 AM - 5 PM ## ENT - **Location**: Floor 4, Wing B - **Head of Department**: Dr. Sanjay Gupta - **Services**: Ear, Nose, Throat care, Audiometry - **Contact**: 555-0177 - **Hours**: OPD: 9 AM - 5 PM\n\n## Emergency Medicine\n- **Location**: Ground Floor\n- **Head of Department**: Dr. Arjun Malhotra\n- **Services**: Triage, Trauma care, Urgent Care\n- **Contact**: 555-0911\n- **Hours**: 24/7",
+    "source": "departments.md",
+    "title": "Departments",
+    "chunk_id": 7
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Frequently Asked Questions\n\n**Q1: Do you have a cafeteria?**\nA: Yes, a 24/7 cafeteria is available on the ground floor.\n\n**Q2: Is parking available?**\nA: Yes, paid parking is available for visitors. Valet parking is also available.\n\n**Q3: Can I get my medical records?**\nA: Medical records can be requested via the patient portal or at the Records Office on Floor 1.",
+    "source": "faq.md",
+    "title": "Faq",
+    "chunk_id": 0
+  },
+  {
+    "content": "24/7 cafeteria is available on the ground floor. **Q2: Is parking available?** A: Yes, paid parking is available for visitors. Valet parking is also available. **Q3: Can I get my medical records?** A: Medical records can be requested via the patient portal or at the Records Office on Floor 1.\n\n**Q4: Do you offer telemedicine?**\nA: Yes, virtual consultations are available for follow-ups and minor ailments.\n\n**Q5: Are there ATMs on site?**\nA: Yes, two ATMs are located near the main entrance.",
+    "source": "faq.md",
+    "title": "Faq",
+    "chunk_id": 1
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Billing and Insurance",
+    "source": "billing.md",
+    "title": "Billing",
+    "chunk_id": 0
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System. > This does not represent a real hospital. # Billing and Insurance\n\n- **Insurance**: We accept all major insurance providers. Please present your insurance card at the time of admission or registration.\n- **Billing Process**: Bills are generated at the time of discharge for IPD patients, and after consultation for OPD patients.\n- **Payment Methods**: We accept Cash, Credit/Debit Cards, UPI, and Bank Transfers.\n- **Financial Assistance**: Available for eligible patients. Please contact the billing department at 555-0199 for more info.",
+    "source": "billing.md",
+    "title": "Billing",
+    "chunk_id": 1
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Our Doctors",
+    "source": "doctors.md",
+    "title": "Doctors",
+    "chunk_id": 0
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System. > This does not represent a real hospital. # Our Doctors\n\n- **Dr. Arun Sharma**: Cardiology (Head). MBBS, MD, DM. 15 years experience.\n- **Dr. Sneha Patel**: Cardiology. MBBS, MD. 8 years experience.\n- **Dr. Rajesh Kumar**: Neurology (Head). MBBS, MD, DM. 18 years experience.\n- **Dr. Priya Menon**: Neurology. MBBS, MD. 5 years experience.\n- **Dr. Suresh Iyer**: Orthopedics (Head). MBBS, MS. 20 years experience.\n- **Dr. Kavita Reddy**: Orthopedics. MBBS, MS. 7 years experience.\n- **Dr. Amit Verma**: Pediatrics (Head). MBBS, MD. 12 years experience.\n- **Dr. Deepika Nair**: Pediatrics. MBBS, MD. 6 years experience.\n- **Dr. Vikram Joshi**: General Medicine (Head). MBBS, MD. 22 years experience.\n- **Dr. Anjali Desai**: General Medicine. MBBS, MD. 9 years experience.\n- **Dr. Manoj Tiwari**: Dermatology (Head). MBBS, MD. 14 years experience.\n- **Dr. Ritu Kapoor**: Dermatology. MBBS, MD. 4 years experience.\n- **Dr. Sanjay Gupta**: ENT (Head). MBBS, MS. 16 years experience.\n- **Dr. Neha Saxena**: ENT. MBBS, MS. 5 years experience.\n- **Dr. Arjun Malhotra**: Emergency Medicine (Head). MBBS, MD. 10 years experience.",
+    "source": "doctors.md",
+    "title": "Doctors",
+    "chunk_id": 1
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Visiting Hours Policy",
+    "source": "visiting_hours.md",
+    "title": "Visiting Hours",
+    "chunk_id": 0
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System. > This does not represent a real hospital. # Visiting Hours Policy\n\n- **General Wards**: 4:00 PM to 7:00 PM daily. Only two visitors allowed per patient at a time.\n- **Private Rooms**: 10:00 AM to 8:00 PM daily. Only two visitors allowed per patient at a time.\n- **ICU/CCU**: 11:00 AM to 11:30 AM and 5:00 PM to 5:30 PM daily. Only one family member allowed per patient. No children under 12 allowed.\n- **Pediatric Ward**: Parents can stay 24/7. Other visitors strictly during general visiting hours.",
+    "source": "visiting_hours.md",
+    "title": "Visiting Hours",
+    "chunk_id": 1
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Hospital Services",
+    "source": "services.md",
+    "title": "Services",
+    "chunk_id": 0
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System. > This does not represent a real hospital. # Hospital Services\n\nWe provide comprehensive medical services:\n- **Emergency**: 24/7 care for urgent medical issues, accidents, and trauma.\n- **OPD (Outpatient Department)**: Scheduled consultations with specialists.\n- **IPD (Inpatient Department)**: Hospitalization and round-the-clock nursing care.\n- **Diagnostic Services**: X-Rays, MRI, CT Scans, Ultrasound, Pathology Lab.\n- **Pharmacy**: In-house 24/7 pharmacy for all prescription needs.\n- **Ambulance**: 24/7 transport services.",
+    "source": "services.md",
+    "title": "Services",
+    "chunk_id": 1
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System.\n> This does not represent a real hospital.\n\n# Appointments Policy",
+    "source": "appointments.md",
+    "title": "Appointments",
+    "chunk_id": 0
+  },
+  {
+    "content": "> Note: This is synthetic demo data for the Smart Hospital Management System. > This does not represent a real hospital. # Appointments Policy\n\n- **Booking**: Appointments can be booked through our online portal, via phone at 555-0100, or in-person at the OPD reception.\n- **Cancellation**: Please cancel at least 24 hours in advance to avoid a no-show fee.\n- **Rescheduling**: Can be done up to 12 hours before the appointment.\n- **No-Show Policy**: Three consecutive no-shows may lead to a temporary restriction on online booking.\n- **Wait Times**: Please arrive 15 minutes before your scheduled slot. Walk-in patients will be seen based on availability after scheduled patients.",
+    "source": "appointments.md",
+    "title": "Appointments",
+    "chunk_id": 1
+  }
+]

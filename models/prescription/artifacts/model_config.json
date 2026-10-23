@@ -1,0 +1,6 @@
+{
+  "model_name": "prescription-ner-v1",
+  "type": "rule_based_ner",
+  "medicine_vocab_size": 30,
+  "note": "Rule-based NER with pattern matching. Fine-tuned BERT would be used in production."
+}

@@ -1,0 +1,21 @@
+{
+    "features": [
+        "age",
+        "sex",
+        "cp",
+        "trestbps",
+        "chol",
+        "fbs",
+        "restecg",
+        "thalach",
+        "exang",
+        "oldpeak",
+        "slope",
+        "ca",
+        "thal"
+    ],
+    "target": "target",
+    "n_train": 211,
+    "n_val": 46,
+    "n_test": 46
+}
