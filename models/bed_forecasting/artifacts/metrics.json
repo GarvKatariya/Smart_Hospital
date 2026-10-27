@@ -1,0 +1,11 @@
+{
+  "dataset": "/Users/garvkatariya/.gemini/antigravity/scratch/smart-hospital-management-system/data/real/beds/hero_dmc_daily.csv",
+  "model": "1-layer LSTM (16 hidden units), 30-day input, 7-day output",
+  "train_windows": 491,
+  "validation_windows": 107,
+  "test_windows": 107,
+  "test_mae_beds": 21.10831769258505,
+  "test_rmse_beds": 29.915409583438823,
+  "persistence_baseline_mae_beds": 17.83578104138852,
+  "test_period_is_chronological_holdout": true
+}

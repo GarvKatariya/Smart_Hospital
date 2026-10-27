@@ -1,13 +1,10 @@
-"""
-Disease Prediction - XGBoost Training
-"""
-import xgboost as xgb
-from sklearn.model_selection import GridSearchCV
+"""Train the heart disease Random Forest classifier."""
 import json
 import joblib
 import os
-import numpy as np
 from datetime import datetime
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
 from preprocessing import load_and_preprocess
 
 def train_model(data_path: str, output_dir: str = 'artifacts'):
@@ -18,53 +15,52 @@ def train_model(data_path: str, output_dir: str = 'artifacts'):
         data_path=data_path, output_dir=output_dir
     )
     
-    # Define model
-    model = xgb.XGBClassifier(
-        objective='binary:logistic',
+    model = RandomForestClassifier(
+        n_estimators=400,
+        max_depth=7,
+        min_samples_leaf=2,
+        class_weight='balanced_subsample',
         random_state=42,
-        eval_metric='logloss'
-    )
-    
-    # Hyperparameter grid
-    param_grid = {
-        'max_depth': [3, 5, 7],
-        'n_estimators': [100, 200],
-        'learning_rate': [0.01, 0.1],
-        'subsample': [0.8, 1.0]
-    }
-    
-    print("Starting Grid Search...")
-    grid_search = GridSearchCV(
-        estimator=model,
-        param_grid=param_grid,
-        cv=5,
-        scoring='roc_auc',
         n_jobs=-1,
-        verbose=1
     )
-    
-    # Train
-    grid_search.fit(X_train, y_train)
-    
-    best_model = grid_search.best_estimator_
-    print(f"Best parameters found: {grid_search.best_params_}")
-    
-    # Save model
-    model_path = os.path.join(output_dir, 'disease_xgboost_v1.joblib')
-    joblib.dump(best_model, model_path)
+    print("Training Random Forest on the training split...")
+    model.fit(X_train, y_train)
+    joblib.dump(model, os.path.join(output_dir, 'disease_random_forest_v1.joblib'))
+    joblib.dump(scaler, os.path.join(output_dir, 'scaler_v3.joblib'))
+
+    test_predictions = model.predict(X_test)
+    test_probabilities = model.predict_proba(X_test)[:, 1]
+    metrics = {
+        "model_name": "disease-random-forest-v1",
+        "dataset": "UCI Heart Disease (Cleveland)",
+        "task": "binary_classification",
+        "metrics": {
+            "accuracy": float(accuracy_score(y_test, test_predictions)),
+            "precision": float(precision_score(y_test, test_predictions, zero_division=0)),
+            "recall": float(recall_score(y_test, test_predictions, zero_division=0)),
+            "f1": float(f1_score(y_test, test_predictions, zero_division=0)),
+            "roc_auc": float(roc_auc_score(y_test, test_probabilities)),
+        },
+        "confusion_matrix": confusion_matrix(y_test, test_predictions).tolist(),
+        "evaluation_date": datetime.now().isoformat(),
+        "test_size": int(len(y_test)),
+        "limitations": "Small dataset (303 samples), single-center data; educational use only.",
+    }
+    with open(os.path.join(output_dir, 'metrics.json'), 'w') as f:
+        json.dump(metrics, f, indent=4)
     
     # Save config
     config = {
-        "best_params": grid_search.best_params_,
+        "model_params": model.get_params(),
         "training_date": datetime.now().isoformat(),
-        "model_version": "v1",
+        "model_version": "random-forest-v1",
         "features": features
     }
     with open(os.path.join(output_dir, 'training_config.json'), 'w') as f:
         json.dump(config, f, indent=4)
         
-    print(f"Model saved to {model_path}")
-    return best_model
+    print(f"Random Forest model saved to {os.path.join(output_dir, 'disease_random_forest_v1.joblib')}")
+    return model
 
 if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.abspath(__file__))

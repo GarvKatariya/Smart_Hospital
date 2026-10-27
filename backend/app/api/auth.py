@@ -3,42 +3,29 @@ from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 from app.db.session import get_db
 from app.db.models.user import User
-from app.db.models.hospital import Doctor, Department
-from app.schemas.auth import UserRegister, UserLogin, Token, UserResponse
+from app.schemas.auth import UserRegister, UserLogin, Token, UserResponse, UserProfileUpdate, PasswordChangeRequest
 from app.core.security import hash_password, verify_password, create_access_token
 from app.api.deps import get_current_user
 from datetime import timedelta
 from app.core.config import settings
-import uuid
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserResponse)
 def register(user_in: UserRegister, db: Session = Depends(get_db)):
+    # Staff roles must be provisioned by an administrator. Accepting role from
+    # an unauthenticated caller would let anyone create an admin account.
+    if user_in.role != "patient":
+        raise HTTPException(
+            status_code=403,
+            detail="Self-registration is available for patients only",
+        )
     user = db.query(User).filter(User.email == user_in.email).first()
     if user:
         raise HTTPException(
             status_code=400,
             detail="The user with this email already exists in the system",
         )
-    if user_in.role not in ("patient", "doctor", "admin"):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid role. Must be one of: patient, doctor, admin",
-        )
-
-    # If registering as doctor, department_id is required
-    if user_in.role == "doctor":
-        if not user_in.department_id:
-            raise HTTPException(
-                status_code=400,
-                detail="Department is required when registering as a doctor",
-            )
-        dept = db.query(Department).filter(Department.id == user_in.department_id).first()
-        if not dept:
-            raise HTTPException(status_code=400, detail="Department not found")
-        if not dept.is_active:
-            raise HTTPException(status_code=400, detail="Department is not active")
 
     user = User(
         email=user_in.email,
@@ -50,16 +37,6 @@ def register(user_in: UserRegister, db: Session = Depends(get_db)):
     db.add(user)
     db.flush()  # get user.id before committing
 
-    # Create Doctor record if role=doctor
-    if user_in.role == "doctor":
-        doctor = Doctor(
-            id=str(uuid.uuid4()),
-            user_id=user.id,
-            department_id=user_in.department_id,
-            is_available=True,
-        )
-        db.add(doctor)
-
     db.commit()
     db.refresh(user)
     return user
@@ -69,6 +46,8 @@ def _authenticate_user(email: str, password: str, db: Session) -> Token:
     user = db.query(User).filter(User.email == email).first()
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="This account is inactive")
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -101,4 +80,35 @@ def login_oauth2(form_data: OAuth2PasswordRequestForm = Depends(), db: Session =
 @router.get("/me", response_model=UserResponse)
 def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_users_me(
+    profile: UserProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    values = profile.model_dump(exclude_unset=True)
+    if "full_name" in values and not values["full_name"].strip():
+        raise HTTPException(status_code=422, detail="Full name cannot be blank")
+    for field, value in values.items():
+        setattr(current_user, field, value.strip() if isinstance(value, str) else value)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.post("/me/password")
+def change_password(
+    request: PasswordChangeRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not verify_password(request.current_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if verify_password(request.new_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Choose a password different from the current one")
+    current_user.hashed_password = hash_password(request.new_password)
+    db.commit()
+    return {"message": "Password updated successfully"}
 

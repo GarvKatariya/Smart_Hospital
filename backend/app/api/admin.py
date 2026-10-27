@@ -11,6 +11,7 @@ from app.db.models.user import User
 from app.db.models.hospital import Doctor, Department, Appointment, HospitalBed
 from app.db.models.ai_models import ModelVersion, AuditLog
 from app.core.security import hash_password
+from app.services.audit_service import record_audit
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -52,8 +53,8 @@ def list_doctors(db: Session = Depends(get_db)):
     return result
 
 
-@router.post("/doctors", dependencies=[Depends(require_role(["admin"]))])
-def create_doctor(data: DoctorCreateRequest, db: Session = Depends(get_db)):
+@router.post("/doctors")
+def create_doctor(data: DoctorCreateRequest, db: Session = Depends(get_db), current_user: User = Depends(require_role(["admin"]))):
     """Create a new doctor: User + Doctor records in one transaction."""
 
     # 1. Validate department exists
@@ -88,6 +89,7 @@ def create_doctor(data: DoctorCreateRequest, db: Session = Depends(get_db)):
         is_available=True,
     )
     db.add(doctor)
+    record_audit(db, user_id=current_user.id, action="doctor.created", resource_type="doctor", resource_id=doctor.id, details={"department_id": dept.id, "email": user.email})
     db.commit()
     db.refresh(user)
     db.refresh(doctor)
@@ -181,6 +183,11 @@ def get_audit_logs(
     """List recent audit log entries."""
     logs = db.query(AuditLog).order_by(AuditLog.created_at.desc()).offset(skip).limit(limit).all()
     total = db.query(AuditLog).count()
+    actor_ids = {log.user_id for log in logs if log.user_id}
+    actors = {
+        user.id: user.full_name
+        for user in db.query(User).filter(User.id.in_(actor_ids)).all()
+    } if actor_ids else {}
 
     return {
         "total": total,
@@ -188,6 +195,7 @@ def get_audit_logs(
             {
                 "id": log.id,
                 "user_id": log.user_id,
+                "actor_name": actors.get(log.user_id, "System"),
                 "action": log.action,
                 "resource_type": log.resource_type,
                 "resource_id": log.resource_id,
@@ -205,11 +213,11 @@ def get_audit_logs(
 # Known models in the system with their artifact paths
 _KNOWN_MODELS = [
     {"name": "symptom_checker", "display": "Symptom Checker (GRU)", "artifact": "models/symptom_checker/artifacts/symptom_gru_v1.pt"},
-    {"name": "disease_prediction", "display": "Disease Prediction (XGBoost)", "artifact": "models/disease_prediction/artifacts/disease_xgboost_v1.joblib"},
+    {"name": "disease_prediction", "display": "Disease Prediction (Random Forest)", "artifact": "models/disease_prediction/artifacts/disease_random_forest_v1.joblib"},
     {"name": "triage", "display": "Triage (GRU)", "artifact": "models/triage/artifacts/triage_gru_v1.pt"},
-    {"name": "bed_forecasting", "display": "Bed Forecasting", "artifact": "models/bed_forecasting/artifacts/bed_forecast_v1.pt"},
-    {"name": "appointment_recommendation", "display": "Appointment Recommendation", "artifact": "models/appointment_recommendation/artifacts/appt_rec_v1.joblib"},
-    {"name": "prescription_ner", "display": "Prescription NER", "artifact": "models/prescription/artifacts/prescription_ner_v1.pt"},
+    {"name": "bed_forecasting", "display": "Bed Forecasting (LSTM)", "artifact": "models/bed_forecasting/artifacts/bed_lstm_v1.pt"},
+    {"name": "appointment_recommendation", "display": "Appointment Recommendation (XGBoost)", "artifact": "models/appointment_recommendation/artifacts/appointment_xgb_v1.joblib"},
+    {"name": "prescription_ner", "display": "Prescription Entity Extraction (Rules)", "artifact": "models/prescription/artifacts/model_config.json", "rule_based": True},
 ]
 
 _PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -226,11 +234,12 @@ def get_models(db: Session = Depends(get_db)):
         artifact_exists = os.path.isfile(artifact_path)
 
         db_entry = db_versions.get(m["name"])
+        is_rule_based = m.get("rule_based", False)
         result.append({
             "name": m["name"],
             "display_name": m["display"],
-            "version": db_entry.version if db_entry else ("1.0" if artifact_exists else None),
-            "is_active": db_entry.is_active if db_entry else artifact_exists,
+            "version": (db_entry.version if db_entry and db_entry.version else "rules-v1") if is_rule_based else (db_entry.version if db_entry else ("1.0" if artifact_exists else None)),
+            "is_active": artifact_exists if is_rule_based else (db_entry.is_active if db_entry else artifact_exists),
             "artifact_present": artifact_exists,
             "training_date": db_entry.training_date if db_entry else None,
             "metrics": db_entry.metrics if db_entry else None,

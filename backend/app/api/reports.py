@@ -26,7 +26,11 @@ async def upload_report(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Upload and analyze a medical report image or PDF."""
+    """Upload and analyze a medical report image or PDF.
+
+    The document is automatically classified (lab report, prescription,
+    imaging, discharge, etc.) and the appropriate extraction pipeline is used.
+    """
     if writing_mode not in ('printed', 'handwritten'):
         writing_mode = 'printed'
 
@@ -39,7 +43,7 @@ async def upload_report(
         with open(file_path, "wb") as f:
             f.write(contents)
 
-        # Process with OCR + parser, passing writing_mode
+        # Process with OCR + classifier + parser, passing writing_mode
         result = report_service.process_report_image(contents, writing_mode=writing_mode)
 
         ocr_data = result.get("ocr", {})
@@ -47,19 +51,19 @@ async def upload_report(
         ocr_confidence = float(ocr_data.get("average_confidence", 0.0))
         parsed = result.get("parsed", {})
 
-        # Use the keys that parse_medical_report actually returns:
-        # summary, key_findings, important_values, abnormal_values, report_type
+        # Extract common fields
         summary = parsed.get("summary", "")
         key_findings = parsed.get("key_findings", [])
         abnormal_values = parsed.get("abnormal_values", {})
         report_type = parsed.get("report_type", "General Medical Report")
+        document_category = parsed.get("document_category", "unknown")
+        classification_confidence = parsed.get("classification_confidence", 0.0)
 
         # Build a richer summary string if the parser produced findings
         if key_findings and summary:
-            # summary already includes findings count — append abnormal details if any
             if abnormal_values:
                 abnormal_list = "; ".join(
-                    f"{k}: {v}" for k, v in list(abnormal_values.items())[:5]
+                    f"{k}: {v}" for k, v in abnormal_values.items()
                 )
                 summary = f"{summary}\nAbnormal values: {abnormal_list}"
         elif not summary:
@@ -83,10 +87,13 @@ async def upload_report(
         db.commit()
         db.refresh(db_report)
 
-        return {
+        # Build response — shape varies by document category
+        response = {
             "id": db_report.id,
             "status": "processed",
             "writing_mode": writing_mode,
+            "document_category": document_category,
+            "classification_confidence": classification_confidence,
             "extracted_text": ocr_text,
             "summary": summary,
             "key_findings": key_findings,
@@ -95,7 +102,26 @@ async def upload_report(
             "report_type": report_type,
             "ocr_confidence": ocr_confidence,
             "ocr_engine": ocr_data.get("engine", "unknown"),
+            "patient_insight": result.get("patient_insight", {}),
+            "low_confidence_warning": parsed.get("low_confidence_warning", False),
         }
+
+        # Add lab values with confidence for lab reports
+        if document_category == 'laboratory_report':
+            response["lab_values"] = parsed.get("lab_values", [])
+
+        # Add prescription data for prescriptions
+        if document_category == 'prescription':
+            response["prescription_data"] = parsed.get("prescription_data", {})
+
+        # Add imaging data
+        if document_category == 'diagnostic_imaging':
+            response["imaging_data"] = {
+                "findings": parsed.get("sections", {}).get("findings", []),
+                "impression": parsed.get("sections", {}).get("impression", ""),
+            }
+
+        return response
 
     except Exception as e:
         logger.error(f"Report upload failed: {e}", exc_info=True)

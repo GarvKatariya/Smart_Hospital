@@ -122,11 +122,9 @@ class AppointmentService:
             # Walk through the next 14 days and generate free slots
             for offset in range(1, lookahead_days + 1):
                 check_date = today + datetime.timedelta(days=offset)
-                # day_of_week: 0=Mon … 6=Sun (Python weekday())
-                dow = check_date.weekday()  # 0=Mon … 6=Sun
-                # DoctorSchedule uses 1=Mon … 7=Sun convention? Let's try both:
-                # Stored as 0-based (matches Python weekday) OR 1-based
-                day_slots = schedule_map.get(dow) or schedule_map.get(dow + 1) or []
+                # DoctorSchedule uses 1=Mon … 7=Sun, matching the seed data.
+                dow = check_date.weekday() + 1
+                day_slots = schedule_map.get(dow, [])
 
                 for sched in day_slots:
                     # Generate hourly slots within the schedule window
@@ -137,6 +135,8 @@ class AppointmentService:
                         continue
 
                     slot_duration = sched.slot_duration_minutes or 30
+                    if slot_duration <= 0:
+                        continue
                     current = datetime.datetime(
                         check_date.year, check_date.month, check_date.day,
                         start_h, start_m,
@@ -186,7 +186,5 @@ class AppointmentService:
                 logger.warning(f'ML scoring failed ({e}), using rule-based ranking')
 
         # Rule-based ranking: prefer sooner dates, prioritise urgency
-        urgency_boost = {'emergency': 0, 'high': 1, 'medium': 2, 'low': 3}
-        boost = urgency_boost.get(urgency, 2)
         candidates.sort(key=lambda c: (c['date'], c['time']))
         return candidates[:5]

@@ -18,14 +18,14 @@ class DiseasePredictionModel:
         self._loaded = False
     
     def load(self) -> bool:
-        """Load model and scaler from artifacts directory."""
+        """Load the serialized Random Forest classifier artifact."""
         try:
-            model_path = os.path.join(self.model_dir, 'disease_xgboost_v1.joblib')
-            scaler_path = os.path.join(self.model_dir, 'scaler.joblib')
+            model_path = os.path.join(self.model_dir, 'disease_random_forest_v1.joblib')
             
-            if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+            if not os.path.exists(model_path):
                 return False
                 
+            scaler_path = os.path.join(self.model_dir, 'scaler_v3.joblib')
             self.model = joblib.load(model_path)
             self.scaler = joblib.load(scaler_path)
             self._loaded = True
@@ -44,7 +44,7 @@ class DiseasePredictionModel:
             "probability": float,
             "risk_category": "Low" | "Medium" | "High",
             "feature_importance": {feature: importance},
-            "model_version": "disease-xgboost-v1"
+            "model_version": "disease-random-forest-v1"
         }
         """
         if not self._loaded:
@@ -59,7 +59,7 @@ class DiseasePredictionModel:
             
         # Create numpy array and scale
         X = np.array(feature_vector).reshape(1, -1)
-        X_scaled = self.scaler.transform(X)
+        X_scaled = self.scaler.transform(X) if self.scaler else X
         
         # Predict
         pred = int(self.model.predict(X_scaled)[0])
@@ -78,7 +78,7 @@ class DiseasePredictionModel:
             "probability": prob,
             "risk_category": self.get_risk_category(prob),
             "feature_importance": feature_importance,
-            "model_version": "disease-xgboost-v1"
+            "model_version": "disease-random-forest-v1"
         }
     
     def get_risk_category(self, probability: float) -> str:

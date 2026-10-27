@@ -13,6 +13,8 @@ from datetime import datetime
 from app.core.logging import get_logger
 from app.db.models.ai_models import TriageRecord
 from app.db.models.hospital import QueueEntry
+from app.db.models.user import User
+from app.services.audit_service import record_audit
 
 
 logger = get_logger(__name__)
@@ -65,7 +67,15 @@ class TriageService:
             
         final_urgency = override if override else prediction['urgency']
         
-        # Save Triage Record
+        from app.db.models.hospital import Department
+        dept = db.query(Department).filter(
+            Department.name == 'Emergency Medicine',
+            Department.is_active.is_(True),
+        ).first()
+        if not dept:
+            raise RuntimeError('Emergency Medicine department is not configured')
+
+        # Save triage and queue data as one transaction.
         triage_record = TriageRecord(
             patient_id=patient_id,
             symptoms=data.get('symptoms', ''),
@@ -89,17 +99,12 @@ class TriageService:
             model_version=prediction['model_version']
         )
         db.add(triage_record)
-        db.commit()
-        db.refresh(triage_record)
         
         # Determine Wait time and queue
         priority_map = {'Emergency': 0, 'High': 15, 'Medium': 45, 'Low': 90}
         wait_time = priority_map.get(final_urgency, 60)
         
-        # Get next queue number for Emergency Department (hardcoded for simplicity)
-        from app.db.models.hospital import Department
-        dept = db.query(Department).filter(Department.name == 'Emergency Medicine').first()
-        dept_id = dept.id if dept else "unknown"
+        dept_id = dept.id
         
         q_count = db.query(QueueEntry).filter(QueueEntry.department_id == dept_id, QueueEntry.status == 'waiting').count()
         
@@ -112,6 +117,7 @@ class TriageService:
             check_in_time=datetime.utcnow()
         )
         db.add(queue_entry)
+        record_audit(db, user_id=patient_id, action="triage.completed", resource_type="triage", resource_id=triage_record.id, details={"urgency": final_urgency, "queue_number": queue_entry.queue_number})
         db.commit()
         
         return {
@@ -123,7 +129,7 @@ class TriageService:
         }
         
     def get_queue(self, db: Session, department_id: str = None) -> List[Dict]:
-        query = db.query(QueueEntry).filter(QueueEntry.status == 'waiting')
+        query = db.query(QueueEntry).filter(QueueEntry.status.in_(['waiting', 'in_progress']))
         if department_id:
             query = query.filter(QueueEntry.department_id == department_id)
             
@@ -132,17 +138,48 @@ class TriageService:
         
         entries = query.all()
         # Sort by priority then check-in time
-        entries.sort(key=lambda x: (priority_order.get(x.priority, 5), x.check_in_time))
+        entries.sort(key=lambda x: (priority_order.get(x.priority, 5), x.check_in_time or datetime.max))
+        patient_ids = {entry.patient_id for entry in entries}
+        patients = {
+            patient.id: patient.full_name
+            for patient in db.query(User).filter(User.id.in_(patient_ids)).all()
+        } if patient_ids else {}
         
         return [
             {
                 'id': q.id,
                 'patient_id': q.patient_id,
+                'patient_name': patients.get(q.patient_id, 'Patient'),
                 'queue_number': q.queue_number,
                 'priority': q.priority,
+                'status': q.status,
                 'estimated_wait': q.estimated_wait_minutes,
-                'check_in_time': q.check_in_time.isoformat()
+                'check_in_time': q.check_in_time.isoformat() if q.check_in_time else None,
+                'is_demo': (q.notes or '').startswith('DEMO_QUEUE:'),
+                'notes': (q.notes or '').removeprefix('DEMO_QUEUE:') or None,
             } for q in entries
         ]
+
+    def update_queue_status(self, db: Session, entry_id: str, new_status: str, actor_id: str) -> QueueEntry | None:
+        allowed_transitions = {
+            'waiting': {'in_progress', 'cancelled'},
+            'in_progress': {'completed', 'cancelled'},
+        }
+        entry = db.query(QueueEntry).filter(QueueEntry.id == entry_id).first()
+        if not entry:
+            return None
+        if new_status not in allowed_transitions.get(entry.status, set()):
+            raise ValueError(f"Cannot change queue status from {entry.status} to {new_status}")
+
+        now = datetime.utcnow()
+        entry.status = new_status
+        if new_status == 'in_progress':
+            entry.called_at = now
+        elif new_status == 'completed':
+            entry.completed_at = now
+        record_audit(db, user_id=actor_id, action=f"queue.{new_status}", resource_type="queue_entry", resource_id=entry.id)
+        db.commit()
+        db.refresh(entry)
+        return entry
 
 triage_service = TriageService()

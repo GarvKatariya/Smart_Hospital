@@ -3,6 +3,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from typing import Dict, List, Optional
+import re
 from app.core.logging import get_logger
 from app.core.config import settings
 from app.ai.llm.factory import llm_provider
@@ -44,6 +45,27 @@ class ChatbotService:
             if results:
                 context = '\n\n'.join([r['content'] for r in results])
                 sources = [{'source': r['source'], 'score': r['score']} for r in results]
+
+        # Do not guess prices. The demo billing knowledge base gives a billing
+        # contact and process, but it contains no admission rate or estimate.
+        normalized_message = re.sub(r'[^a-z0-9 ]+', ' ', message.lower())
+        asks_about_cost = any(term in normalized_message for term in (
+            'charge', 'cost', 'fee', 'price', 'how much', 'estimate', 'rates',
+        ))
+        asks_about_admission = any(term in normalized_message for term in (
+            'admit', 'admission', 'inpatient', 'hospital stay',
+        ))
+        has_billing_source = any('billing' in source['source'].lower() for source in sources)
+        if asks_about_cost and asks_about_admission and has_billing_source:
+            return {
+                'response': (
+                    "I don’t have a fixed admission charge in the available hospital information. "
+                    "For an inpatient stay, the bill is prepared at discharge. Please contact the "
+                    "billing desk at 555-0199 for an estimate. This is sample contact information "
+                    "for the demo hospital."
+                ),
+                'sources': sources,
+            }
         
         # Format history
         history_text = ''
@@ -60,7 +82,10 @@ class ChatbotService:
         except Exception as e:
             logger.error(f'LLM generation failed: {e}')
             if sources:
-                response = f'Based on hospital information: {context[:500]}...'
+                response = (
+                    "I found relevant hospital information, but I couldn’t prepare a clear reply "
+                    "just now. Please try again, or contact the department listed in the source."
+                )
             else:
                 response = "I'm having trouble processing your request. Please try again or contact the hospital directly."
         

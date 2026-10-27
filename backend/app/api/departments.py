@@ -5,12 +5,25 @@ from app.db.models.hospital import Department
 from app.schemas.hospital import DepartmentCreate, DepartmentResponse
 from app.api.deps import require_role
 from typing import List
+from app.services.audit_service import record_audit
 
 router = APIRouter(prefix="/api/departments", tags=["departments"])
 
 @router.get("/", response_model=List[DepartmentResponse])
-def read_departments(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(Department).offset(skip).limit(limit).all()
+def read_departments(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
+    return db.query(Department).filter(Department.is_active.is_(True)).offset(skip).limit(min(limit, 200)).all()
+
+
+@router.get("/admin/all", response_model=List[DepartmentResponse])
+def read_all_departments(
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["admin"])),
+):
+    return db.query(Department).order_by(Department.name).all()
 
 @router.get("/{id}", response_model=DepartmentResponse)
 def read_department(id: str, db: Session = Depends(get_db)):
@@ -23,6 +36,8 @@ def read_department(id: str, db: Session = Depends(get_db)):
 def create_department(department: DepartmentCreate, db: Session = Depends(get_db), current_user = Depends(require_role(["admin"]))):
     db_department = Department(**department.model_dump())
     db.add(db_department)
+    db.flush()
+    record_audit(db, user_id=current_user.id, action="department.created", resource_type="department", resource_id=db_department.id, details={"name": db_department.name})
     db.commit()
     db.refresh(db_department)
     return db_department
@@ -32,9 +47,9 @@ def update_department(id: str, department_in: DepartmentCreate, db: Session = De
     department = db.query(Department).filter(Department.id == id).first()
     if not department:
         raise HTTPException(status_code=404, detail="Department not found")
-    for var, value in vars(department_in).items():
-        setattr(department, var, value) if value else None
-    db.add(department)
+    for field, value in department_in.model_dump().items():
+        setattr(department, field, value)
+    record_audit(db, user_id=current_user.id, action="department.updated", resource_type="department", resource_id=department.id, details={"name": department.name, "is_active": department.is_active})
     db.commit()
     db.refresh(department)
     return department

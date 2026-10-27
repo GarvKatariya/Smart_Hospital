@@ -19,7 +19,20 @@ def create_session(db: Session = Depends(get_db), current_user: User = Depends(g
 
 @router.get("/sessions")
 def list_sessions(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return db.query(ChatbotSession).filter(ChatbotSession.user_id == current_user.id).all()
+    return db.query(ChatbotSession).filter(ChatbotSession.user_id == current_user.id).order_by(ChatbotSession.created_at.desc()).all()
+
+@router.get("/sessions/{id}/messages")
+def list_messages(id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    session = db.query(ChatbotSession).filter(
+        ChatbotSession.id == id,
+        ChatbotSession.user_id == current_user.id,
+    ).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    messages = db.query(ChatbotMessage).filter(
+        ChatbotMessage.session_id == session.id,
+    ).order_by(ChatbotMessage.created_at).all()
+    return [{"id": message.id, "role": message.role, "content": message.content} for message in messages]
 
 @router.post("/sessions/{id}/messages", response_model=ChatMessageResponse)
 def send_message(id: str, request: ChatMessageRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

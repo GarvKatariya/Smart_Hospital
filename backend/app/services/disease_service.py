@@ -1,8 +1,4 @@
-"""
-Disease Prediction Service
-Loads XGBoost model and provides prediction interface for the API.
-Direct loading approach to avoid importlib crashes with xgboost.
-"""
+"""Heart disease prediction service using the local Random Forest artifact."""
 import os
 import joblib
 import numpy as np
@@ -28,20 +24,19 @@ class DiseaseService:
         self._loaded = False
     
     def load_model(self):
-        """Load the XGBoost model and scaler directly with joblib."""
+        """Load the serialized Random Forest classifier."""
         try:
-            model_path = os.path.join(ARTIFACTS_DIR, 'disease_xgboost_v1.joblib')
-            scaler_path = os.path.join(ARTIFACTS_DIR, 'scaler.joblib')
+            model_path = os.path.join(ARTIFACTS_DIR, 'disease_random_forest_v1.joblib')
             
             if not os.path.exists(model_path):
                 logger.warning(f"Model not found at {model_path}")
                 return
             
+            scaler_path = os.path.join(ARTIFACTS_DIR, 'scaler_v3.joblib')
             self.model = joblib.load(model_path)
-            if os.path.exists(scaler_path):
-                self.scaler = joblib.load(scaler_path)
+            self.scaler = joblib.load(scaler_path)
             self._loaded = True
-            logger.info("Disease prediction model loaded successfully")
+            logger.info("Disease prediction Random Forest loaded successfully")
         except Exception as e:
             logger.error(f"Failed to load disease prediction model: {e}")
             self._loaded = False
@@ -56,8 +51,6 @@ class DiseaseService:
         # Build feature array in correct order
         feature_values = [float(features.get(name, 0)) for name in FEATURE_NAMES]
         X = np.array([feature_values])
-        
-        # Scale if scaler is available
         if self.scaler:
             X = self.scaler.transform(X)
         
@@ -85,7 +78,7 @@ class DiseaseService:
             "probability": probability,
             "risk_category": risk_category,
             "feature_importance": feature_importance,
-            "model_version": "disease-xgboost-v1",
+            "model_version": "disease-random-forest-v1",
         }
     
     @property

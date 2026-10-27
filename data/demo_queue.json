@@ -1,0 +1,12 @@
+{
+  "label": "Synthetic demonstration queue",
+  "department": "Emergency Medicine",
+  "entries": [
+    { "patient_email": "patient@demo.com", "priority": "high", "status": "waiting", "minutes_ago": 24, "estimated_wait_minutes": 15, "notes": "Initial assessment for a persistent fever." },
+    { "patient_email": "priya.sharma@demo.com", "priority": "medium", "status": "waiting", "minutes_ago": 19, "estimated_wait_minutes": 45, "notes": "Demo record for a mild respiratory complaint." },
+    { "patient_email": "rahul.patel@demo.com", "priority": "low", "status": "waiting", "minutes_ago": 13, "estimated_wait_minutes": 90, "notes": "Demo record for a routine minor injury." },
+    { "patient_email": "anita.gupta@demo.com", "priority": "emergency", "status": "in_progress", "minutes_ago": 8, "estimated_wait_minutes": 0, "notes": "Demo record; urgent symptoms require immediate staff review." },
+    { "patient_email": "vikram.singh@demo.com", "priority": "medium", "status": "waiting", "minutes_ago": 6, "estimated_wait_minutes": 45, "notes": "Demo record for nausea and dehydration assessment." },
+    { "patient_email": "meera.nair@demo.com", "priority": "low", "status": "waiting", "minutes_ago": 2, "estimated_wait_minutes": 90, "notes": "Demo record for a routine consultation." }
+  ]
+}

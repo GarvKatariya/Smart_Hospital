@@ -4,7 +4,7 @@ import logging
 import uuid
 
 from sqlalchemy.orm import Session
-from app.api.deps import get_current_user, get_db
+from app.api.deps import require_role, get_db
 from app.schemas.ai import DiseasePredictionRequest, DiseasePredictionResponse
 from app.db.models.user import User
 from app.db.models.ai_models import DiseasePrediction
@@ -14,19 +14,19 @@ from pydantic import BaseModel, Field
 
 # Inline fallback schema in case the imported one differs
 class FallbackDiseasePredictionRequest(BaseModel):
-    age: float = Field(..., description="Age in years")
-    sex: float = Field(..., description="1 = male, 0 = female")
-    cp: float = Field(..., description="Chest pain type (0-3)")
-    trestbps: float = Field(..., description="Resting blood pressure")
-    chol: float = Field(..., description="Serum cholesterol")
-    fbs: float = Field(..., description="Fasting blood sugar > 120 (1/0)")
-    restecg: float = Field(..., description="Resting ECG results (0-2)")
-    thalach: float = Field(..., description="Max heart rate")
-    exang: float = Field(..., description="Exercise induced angina (1/0)")
-    oldpeak: float = Field(..., description="ST depression induced by exercise")
-    slope: float = Field(..., description="Slope of peak exercise ST segment (0-2)")
-    ca: float = Field(..., description="Number of major vessels (0-3)")
-    thal: float = Field(..., description="Thalassemia (0-3)")
+    age: int = Field(..., ge=1, le=120, description="Age in years")
+    sex: int = Field(..., ge=0, le=1, description="1 = male, 0 = female")
+    cp: int = Field(..., ge=0, le=3, description="Chest pain type (0-3)")
+    trestbps: int = Field(..., ge=50, le=260, description="Resting blood pressure")
+    chol: int = Field(..., ge=50, le=700, description="Serum cholesterol")
+    fbs: int = Field(..., ge=0, le=1, description="Fasting blood sugar > 120 (1/0)")
+    restecg: int = Field(..., ge=0, le=2, description="Resting ECG results (0-2)")
+    thalach: int = Field(..., ge=40, le=250, description="Max heart rate")
+    exang: int = Field(..., ge=0, le=1, description="Exercise induced angina (1/0)")
+    oldpeak: float = Field(..., ge=-5, le=10, description="ST depression induced by exercise")
+    slope: int = Field(..., ge=0, le=2, description="Slope of peak exercise ST segment (0-2)")
+    ca: int = Field(..., ge=0, le=4, description="Number of major vessels (0-4)")
+    thal: int = Field(..., ge=0, le=3, description="Thalassemia (0-3)")
 
 class FallbackDiseasePredictionResponse(BaseModel):
     prediction: int
@@ -53,11 +53,11 @@ DISCLAIMER = (
 @router.post("/predict", response_model=DiseaseRes)
 def predict_disease(
     request: DiseaseReq,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(["patient"])),
     db: Session = Depends(get_db)
 ):
     try:
-        features = request.dict()
+        features = request.model_dump()
         prediction_result = disease_service.predict(features)
 
         # Inject disclaimer

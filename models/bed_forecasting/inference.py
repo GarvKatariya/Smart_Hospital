@@ -39,7 +39,8 @@ class BedForecastModel:
         x = torch.tensor([scaled_data], dtype=torch.float32)
         with torch.no_grad():
             out = self.model(x).numpy()[0]
-        return out[0]
+        out = out + scaled_data[-1, 2]
+        return float((out[0] - self.scaler.min_[2]) / self.scaler.scale_[2])
     
     def predict_7day(self, recent_data: List[List[float]]) -> List[float]:
         if not self.model or not self.scaler:
@@ -49,4 +50,5 @@ class BedForecastModel:
         x = torch.tensor([scaled_data], dtype=torch.float32)
         with torch.no_grad():
             out = self.model(x).numpy()[0]
-        return out.tolist()
+        out = out + scaled_data[-1, 2]
+        return ((out - self.scaler.min_[2]) / self.scaler.scale_[2]).tolist()

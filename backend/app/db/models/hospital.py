@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Boolean, Integer, ForeignKey, DateTime, Index, text
 from app.db.base import Base, BaseModel
 
 class Department(Base, BaseModel):
@@ -21,7 +21,7 @@ class Doctor(Base, BaseModel):
 class DoctorSchedule(Base, BaseModel):
     __tablename__ = 'doctor_schedules'
     doctor_id = Column(String(36), ForeignKey('doctors.id'), nullable=False)
-    day_of_week = Column(Integer, nullable=False) # 0-6
+    day_of_week = Column(Integer, nullable=False) # 1=Monday … 7=Sunday
     start_time = Column(String(10), nullable=False)
     end_time = Column(String(10), nullable=False)
     slot_duration_minutes = Column(Integer, default=30)
@@ -29,6 +29,16 @@ class DoctorSchedule(Base, BaseModel):
 
 class Appointment(Base, BaseModel):
     __tablename__ = 'appointments'
+    __table_args__ = (
+        Index(
+            'uq_appointment_active_doctor_slot',
+            'doctor_id',
+            'appointment_date',
+            unique=True,
+            sqlite_where=text("status = 'scheduled'"),
+            postgresql_where=text("status = 'scheduled'"),
+        ),
+    )
     patient_id = Column(String(36), ForeignKey('users.id'), nullable=False)
     doctor_id = Column(String(36), ForeignKey('doctors.id'), nullable=False)
     department_id = Column(String(36), ForeignKey('departments.id'), nullable=False)

@@ -97,9 +97,9 @@ def _adaptive_threshold(img: Image.Image) -> Image.Image:
     local_mean = uniform_filter(padded.astype(np.float32), size=block)
     local_mean = local_mean[pad:-pad, pad:-pad]
 
-    # Binarise: pixel is foreground (black) if it's darker than local mean − C
+    # Binarise with dark text as black (0) and the paper as white (255).
     C = 10  # constant subtracted from mean
-    binary = (arr < (local_mean - C)).astype(np.uint8) * 255
+    binary = (arr >= (local_mean - C)).astype(np.uint8) * 255
 
     return Image.fromarray(binary, mode='L').convert('RGB')
 
@@ -107,7 +107,8 @@ def _adaptive_threshold(img: Image.Image) -> Image.Image:
 def _global_threshold(img: Image.Image, thresh: int = 180) -> Image.Image:
     """Simple global threshold — faster fallback for adaptive threshold."""
     gray = np.array(_to_grayscale(img), dtype=np.uint8)
-    binary = ((gray < thresh) * 255).astype(np.uint8)
+    # Keep the conventional black-text-on-white-paper polarity expected by OCR.
+    binary = ((gray >= thresh) * 255).astype(np.uint8)
     return Image.fromarray(binary, mode='L').convert('RGB')
 
 

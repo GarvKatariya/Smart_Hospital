@@ -11,10 +11,6 @@ from datetime import datetime, date
 
 router = APIRouter(prefix="/api/doctors", tags=["doctors"])
 
-# Demo doctor email — used to identify the seeded demo doctor
-DEMO_DOCTOR_EMAIL = "doctor@demo.com"
-
-
 @router.get("/me/stats")
 def get_my_stats(
     db: Session = Depends(get_db),
@@ -30,15 +26,6 @@ def get_my_stats(
 
     # Find the Doctor record for this user
     doctor = db.query(Doctor).filter(Doctor.user_id == current_user.id).first()
-
-    # Demo doctor special case
-    if current_user.email == DEMO_DOCTOR_EMAIL:
-        return {
-            "appointments_today": 12,
-            "pending_reports": 3,
-            "total_patients": 340,
-            "is_demo": True,
-        }
 
     # Real doctor — query actual database
     if not doctor:
@@ -139,7 +126,21 @@ def create_doctor_schedule(id: str, schedule: ScheduleCreate, db: Session = Depe
     doctor = db.query(Doctor).filter(Doctor.id == id).first()
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
-    db_schedule = DoctorSchedule(**schedule.model_dump(), doctor_id=id)
+    if current_user.role == "doctor" and doctor.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Doctors can only manage their own schedules")
+    if schedule.doctor_id != id:
+        raise HTTPException(status_code=400, detail="Schedule doctor_id must match the URL")
+    if not 1 <= schedule.day_of_week <= 7:
+        raise HTTPException(status_code=422, detail="day_of_week must be between 1 (Monday) and 7 (Sunday)")
+    try:
+        start = datetime.strptime(schedule.start_time, "%H:%M").time()
+        end = datetime.strptime(schedule.end_time, "%H:%M").time()
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Schedule times must use HH:MM format")
+    if start >= end or not 5 <= schedule.slot_duration_minutes <= 240:
+        raise HTTPException(status_code=422, detail="Schedule time range or slot duration is invalid")
+    schedule_data = schedule.model_dump(exclude={"doctor_id"})
+    db_schedule = DoctorSchedule(**schedule_data, doctor_id=id)
     db.add(db_schedule)
     db.commit()
     db.refresh(db_schedule)

@@ -1,9 +1,8 @@
 """Unit tests for symptom service."""
-import pytest
-import sys, os
 from unittest.mock import patch, MagicMock
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+import torch
+
 from app.services.symptom_service import SymptomService
 from models.symptom_checker.preprocessing import normalize_symptoms
 
@@ -15,26 +14,19 @@ def test_symptom_normalization():
     assert 'headache' in normalized
     assert 'continuous_sneezing' in normalized
 
-@patch('app.services.symptom_service.SymptomCheckerModel')
-def test_symptom_service(mock_model_class):
-    mock_instance = mock_model_class.return_value
-    mock_instance.load.return_value = True
-    mock_instance.symptom_vocab = ['headache', 'fever']
-    mock_instance.predict.return_value = {
-        'predictions': [{'disease': 'Common Cold', 'confidence': 0.9, 'department': 'General Medicine'}],
-        'matched_symptoms': ['headache'],
-        'top_prediction': {'disease': 'Common Cold', 'confidence': 0.9, 'department': 'General Medicine'},
-        'model_version': 'v1'
-    }
-    
+def test_symptom_service_returns_ranked_prediction():
+    mock_model = MagicMock(return_value=torch.tensor([[3.0, 1.0]]))
     service = SymptomService()
-    service.model = mock_instance
+    service.model = mock_model
+    service.symptom_vocab = ['headache', 'fever']
+    service.disease_list = ['Common Cold', 'Migraine']
     service._loaded = True
-    
-    # Needs LLM mocking if generating explanations, so we pass just basic test
+
     with patch('app.services.symptom_service.llm_provider.generate', return_value="Mock explanation"):
         result = service.check_symptoms(symptoms_text="headache")
-        
-        assert result['predicted_condition'] == 'Common Cold'
-        assert 'Mock explanation' in result['explanation']
-        assert result['department'] == 'General Medicine'
+
+    assert result['predicted_condition'] == 'Common Cold'
+    assert 'Mock explanation' in result['explanation']
+    assert result['department'] == 'General Medicine'
+    assert result['matched_symptoms'] == ['headache']
+    assert len(result['all_predictions']) == 2
