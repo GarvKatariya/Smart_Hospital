@@ -39,6 +39,15 @@ async def analyze_prescription(
             shutil.copyfileobj(file.file, buffer)
 
         result = prescription_service.analyze(file_path, writing_mode=writing_mode)
+        if result.get("ocr_engine") == "mock":
+            try:
+                os.remove(file_path)
+            except OSError:
+                pass
+            raise HTTPException(
+                status_code=503,
+                detail="OCR is unavailable on this server. Start the backend with PaddleOCR installed; no prescription data was extracted.",
+            )
 
         prescription_id = str(uuid.uuid4())
         try:
@@ -91,6 +100,8 @@ async def analyze_prescription(
             "analysis": result,
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to analyze prescription: {e}", exc_info=True)
         raise HTTPException(

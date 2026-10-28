@@ -21,7 +21,7 @@ build-rag:
 	cd rag && python build_index.py
 
 run-backend:
-	cd backend && uvicorn main:app --reload --port 8000
+	./start-servers.sh backend-only
 
 run-frontend:
 	cd frontend && npm run dev

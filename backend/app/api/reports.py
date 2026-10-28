@@ -47,6 +47,15 @@ async def upload_report(
         result = report_service.process_report_image(contents, writing_mode=writing_mode)
 
         ocr_data = result.get("ocr", {})
+        if ocr_data.get("engine") == "mock":
+            try:
+                os.remove(file_path)
+            except OSError:
+                pass
+            raise HTTPException(
+                status_code=503,
+                detail="OCR is unavailable on this server. Start the backend with PaddleOCR installed; no document data was extracted.",
+            )
         ocr_text = ocr_data.get("full_text", "")
         ocr_confidence = float(ocr_data.get("average_confidence", 0.0))
         parsed = result.get("parsed", {})
@@ -123,6 +132,8 @@ async def upload_report(
 
         return response
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Report upload failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to process report. Please try again.")

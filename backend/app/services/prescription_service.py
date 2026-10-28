@@ -179,6 +179,7 @@ class PrescriptionService:
             'writing_mode': writing_mode,
             'ocr_text': raw_text,
             'ocr_confidence': ocr_confidence,
+            'ocr_engine': ocr_result.get('engine', 'unknown'),
             'extraction_method': extraction_method,
             'patient': header,
             'medications': medications,

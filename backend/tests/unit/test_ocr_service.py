@@ -2,11 +2,11 @@
 Unit tests for OCRService — the OCR engine abstraction layer.
 
 Tests cover:
-  - Mock OCR engine fallback (when neither PaddleOCR nor Tesseract installed)
+  - Mock OCR fallback never fabricates document text or medical values
   - extract_text() returns the expected dict shape
   - document_type and writing_mode are preserved in output
   - Preprocessing dispatch (_preprocess) doesn't crash on missing files
-  - Mock output contains expected fields and demo text
+  - Mock output contains an explicit unavailable note and no extracted data
 """
 import pytest
 import sys
@@ -101,7 +101,7 @@ class TestExtractTextContract:
 # ---------------------------------------------------------------------------
 
 class TestMockOCR:
-    def test_mock_extract_returns_demo_text(self):
+    def test_mock_extract_does_not_fabricate_document_text(self):
         svc = OCRService()
         # Force mock mode
         svc.engine_type = 'mock'
@@ -117,8 +117,9 @@ class TestMockOCR:
         try:
             result = svc.extract_text(path)
             assert 'mock' in result['engine'].lower() or result['engine'] == 'mock'
-            assert 'SMART CITY' in result['full_text'] or 'Mock' in result['full_text']
-            assert result['average_confidence'] == 0.5
+            assert result['full_text'] == ''
+            assert result['lines'] == []
+            assert result['average_confidence'] == 0.0
         finally:
             os.unlink(path)
 
@@ -129,6 +130,7 @@ class TestMockOCR:
         result = svc._mock_extract('/tmp/fake.png')
         assert 'note' in result
         assert 'No OCR engine available' in result['note']
+        assert result['full_text'] == ''
 
 
 # ---------------------------------------------------------------------------

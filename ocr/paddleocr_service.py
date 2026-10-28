@@ -390,18 +390,11 @@ class OCRService:
 
     def _mock_extract(self, image_path: str) -> Dict:
         return {
-            'full_text': (
-                'SMART CITY GENERAL HOSPITAL\n'
-                'PATHOLOGY DEPARTMENT\n'
-                'Patient: Demo Patient  Age: 45  Sex: Male\n'
-                'COMPLETE BLOOD COUNT\n'
-                'Hemoglobin 14.2 g/dL\n'
-                'WBC 8500 /uL\n'
-                'Platelets 250000 /uL\n'
-                'Glucose 95 mg/dL\n'
-            ),
-            'lines': [{'text': '[Mock OCR] Placeholder text', 'confidence': 0.5}],
-            'average_confidence': 0.5,
+            # Never substitute sample medical data for a user's upload. API
+            # routes use this engine marker to return a clear unavailable error.
+            'full_text': '',
+            'lines': [],
+            'average_confidence': 0.0,
             'engine': 'mock',
             'note': 'No OCR engine available. Install paddleocr or pytesseract.',
         }
