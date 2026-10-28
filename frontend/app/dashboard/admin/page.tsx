@@ -77,7 +77,7 @@ export default function AdminPage() {
     { title: 'Manage Doctors', href: '/dashboard/admin/doctors', icon: <Stethoscope className="h-6 w-6 text-blue-600" />, color: 'bg-blue-100', desc: 'Add or view doctors' },
     { title: 'Departments', href: '/dashboard/admin/departments', icon: <Building className="h-6 w-6 text-green-600" />, color: 'bg-green-100', desc: 'Department management' },
     { title: 'AI Models', href: '/dashboard/admin/models', icon: <Activity className="h-6 w-6 text-purple-600" />, color: 'bg-purple-100', desc: 'Model versions & status' },
-    { title: 'Bed Management', href: '/dashboard/beds', icon: <BedDouble className="h-6 w-6 text-orange-600" />, color: 'bg-orange-100', desc: 'View bed occupancy' },
+    { title: 'Bed Availability', href: '/dashboard/beds', icon: <BedDouble className="h-6 w-6 text-orange-600" />, color: 'bg-orange-100', desc: stats ? `${stats.available_beds} of ${stats.total_beds} beds available` : 'View and update bed status' },
   ];
 
   return (

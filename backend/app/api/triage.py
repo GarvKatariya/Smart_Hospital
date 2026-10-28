@@ -68,6 +68,15 @@ def get_queue(department_id: str = None, db: Session = Depends(get_db), current_
     return triage_service.get_queue(db, department_id)
 
 
+@router.get("/my-queue")
+def get_my_queue(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["patient"])),
+):
+    """Let patients track their own active queue entries without exposing others."""
+    return triage_service.get_patient_queue(db, current_user.id)
+
+
 @router.patch("/queue/{entry_id}")
 def update_queue_entry(
     entry_id: str,

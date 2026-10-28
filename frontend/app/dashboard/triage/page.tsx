@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import Link from 'next/link';
 import { AlertTriangle, CheckCircle2, ClipboardPlus, HeartPulse } from 'lucide-react';
 import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -169,6 +170,7 @@ export default function TriagePage() {
                 <p className="mt-1 text-sm">Estimated wait: {result.estimated_wait} minutes · Queue number: {result.queue_number}</p>
                 <p className="mt-1 text-sm">Model confidence: {Math.round(result.confidence * 100)}%</p>
                 {result.override_applied && <p className="mt-3 font-medium">A safety rule raised this result to Emergency. Seek immediate in-person care.</p>}
+                <Link href="/dashboard/my-queue" className="mt-3 inline-flex items-center font-medium underline">Track my queue</Link>
                 <p className="mt-3 text-xs">{result.disclaimer} This result is saved to the hospital triage queue for staff review.</p>
               </div>
             </div>

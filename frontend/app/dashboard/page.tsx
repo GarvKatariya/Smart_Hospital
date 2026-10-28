@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Activity, ArrowRight, Calendar, Clock, Users } from 'lucide-react';
+import { Activity, ArrowRight, Calendar, Clock, Stethoscope, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { StatsCard } from '@/components/ui/StatsCard';
 import { useAuth } from '@/lib/auth';
@@ -78,6 +78,8 @@ export default function DashboardPage() {
 
   const actions = [
     { title: 'Check Symptoms', href: '/dashboard/symptoms', icon: <Activity className="h-6 w-6 text-blue-600" />, color: 'bg-blue-100' },
+    { title: 'AI Triage', href: '/dashboard/triage', icon: <Stethoscope className="h-6 w-6 text-red-600" />, color: 'bg-red-100' },
+    { title: 'My Queue', href: '/dashboard/my-queue', icon: <Users className="h-6 w-6 text-indigo-600" />, color: 'bg-indigo-100' },
     { title: 'Book Appointment', href: '/dashboard/appointments', icon: <Calendar className="h-6 w-6 text-green-600" />, color: 'bg-green-100' },
     { title: 'AI Chatbot', href: '/dashboard/chatbot', icon: <Clock className="h-6 w-6 text-purple-600" />, color: 'bg-purple-100' },
     { title: 'Upload Report', href: '/dashboard/reports', icon: <Users className="h-6 w-6 text-orange-600" />, color: 'bg-orange-100' },

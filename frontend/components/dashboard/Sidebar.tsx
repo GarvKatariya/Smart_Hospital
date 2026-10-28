@@ -19,6 +19,7 @@ export function Sidebar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean, se
     { href: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { href: '/dashboard/symptoms', label: 'Symptom Checker', icon: <Activity size={20} /> },
     { href: '/dashboard/triage', label: 'AI Triage', icon: <Stethoscope size={20} /> },
+    { href: '/dashboard/my-queue', label: 'My Queue', icon: <Users size={20} /> },
     { href: '/dashboard/appointments', label: 'Appointments', icon: <Calendar size={20} /> },
     { href: '/dashboard/beds', label: 'Bed Availability', icon: <BedDouble size={20} /> },
     { href: '/dashboard/reports', label: 'Reports', icon: <FileText size={20} /> },
@@ -44,7 +45,7 @@ export function Sidebar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean, se
     { href: '/dashboard/admin/patients', label: 'Patients', icon: <Users size={20} /> },
     { href: '/dashboard/admin/audit', label: 'Audit History', icon: <FileText size={20} /> },
     { href: '/dashboard/appointments', label: 'Appointments', icon: <Calendar size={20} /> },
-    { href: '/dashboard/beds', label: 'Beds', icon: <Activity size={20} /> },
+    { href: '/dashboard/beds', label: 'Bed Availability', icon: <BedDouble size={20} /> },
     { href: '/dashboard/queue', label: 'Queue', icon: <Users size={20} /> },
     { href: '/dashboard/admin/models', label: 'AI Models', icon: <Database size={20} /> },
   ];

@@ -19,15 +19,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       return;
     }
     if (!loading && user) {
+      const role = user.role?.toLowerCase();
       const requiredRole = pathname.startsWith('/dashboard/admin') ? 'admin'
         : pathname === '/dashboard/queue' ? 'staff'
-        : ['/dashboard/symptoms', '/dashboard/triage', '/dashboard/disease', '/dashboard/chatbot', '/dashboard/prescriptions'].includes(pathname) ? 'patient'
+        : ['/dashboard/symptoms', '/dashboard/triage', '/dashboard/my-queue', '/dashboard/disease', '/dashboard/chatbot', '/dashboard/prescriptions'].includes(pathname) ? 'patient'
         : pathname === '/dashboard/reports' ? 'patient_or_doctor'
         : null;
       const permitted = requiredRole === null
-        || (requiredRole === 'staff' ? ['admin', 'doctor'].includes(user.role)
-          : requiredRole === 'patient_or_doctor' ? ['patient', 'doctor'].includes(user.role)
-          : user.role === requiredRole);
+        || (requiredRole === 'staff' ? ['admin', 'doctor'].includes(role || '')
+          : requiredRole === 'patient_or_doctor' ? ['patient', 'doctor'].includes(role || '')
+          : role === requiredRole);
       if (!permitted) router.replace('/dashboard');
     }
   }, [loading, isAuthenticated, router, pathname, user]);

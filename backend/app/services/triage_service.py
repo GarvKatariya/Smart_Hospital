@@ -160,6 +160,51 @@ class TriageService:
             } for q in entries
         ]
 
+    def get_patient_queue(self, db: Session, patient_id: str) -> List[Dict]:
+        """Return only this patient's active queue entries and safe status details."""
+        from app.db.models.hospital import Department
+
+        active_statuses = ('waiting', 'in_progress')
+        entries = db.query(QueueEntry).filter(
+            QueueEntry.status.in_(active_statuses)
+        ).all()
+        priority_order = {'emergency': 1, 'high': 2, 'medium': 3, 'low': 4}
+        entries.sort(key=lambda entry: (
+            priority_order.get((entry.priority or '').lower(), 5),
+            entry.check_in_time or datetime.max,
+        ))
+        departments = {
+            department.id: department.name
+            for department in db.query(Department).all()
+        }
+
+        result = []
+        for entry in entries:
+            if entry.patient_id != patient_id:
+                continue
+            ahead = sum(
+                1 for other in entries
+                if other.department_id == entry.department_id
+                and (
+                    priority_order.get((other.priority or '').lower(), 5),
+                    other.check_in_time or datetime.max,
+                ) < (
+                    priority_order.get((entry.priority or '').lower(), 5),
+                    entry.check_in_time or datetime.max,
+                )
+            )
+            result.append({
+                'id': entry.id,
+                'queue_number': entry.queue_number,
+                'priority': entry.priority,
+                'status': entry.status,
+                'estimated_wait': entry.estimated_wait_minutes,
+                'patients_ahead': ahead,
+                'department_name': departments.get(entry.department_id, 'Hospital'),
+                'check_in_time': entry.check_in_time.isoformat() if entry.check_in_time else None,
+            })
+        return result
+
     def update_queue_status(self, db: Session, entry_id: str, new_status: str, actor_id: str) -> QueueEntry | None:
         allowed_transitions = {
             'waiting': {'in_progress', 'cancelled'},

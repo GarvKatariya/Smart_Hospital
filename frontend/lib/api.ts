@@ -227,6 +227,7 @@ export interface BedInventoryItem {
 
 export const triageAPI = {
   predict: (data: TriageInput) => api.post('/api/triage/predict', data),
+  getMyQueue: () => api.get('/api/triage/my-queue'),
   getQueue: () => api.get('/api/triage/queue'),
   updateQueueStatus: (id: string, status: 'in_progress' | 'completed' | 'cancelled') =>
     api.patch(`/api/triage/queue/${id}`, { status }),
